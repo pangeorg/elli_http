@@ -45,13 +45,6 @@ defmodule Server do
       {:ok, parsed} -> IO.puts(HttpRequestSerializer.to_string(parsed))
     end
   end
-
-  defp handle_endpoint(method, endpoint) do
-    case [method, endpoint] do
-      ["GET", "/"] -> IO.puts("root")
-      _ -> IO.puts("not found")
-    end
-  end
 end
 
 defmodule HttpRequest do
@@ -64,6 +57,16 @@ defmodule HttpRequest do
         }
   @enforce_keys [:method, :path, :version]
   defstruct [:method, :path, :version, headers: %{}, body: ""]
+end
+
+defmodule HttpResponse do
+  @type t :: %__MODULE__{
+          version: String.t(),
+          status: integer(),
+          headers: map(),
+          body: String.t()
+        }
+  defstruct [:version, :status, headers: %{}, body: ""]
 end
 
 defmodule HttpRequestSerializer do
@@ -128,8 +131,11 @@ defmodule HttpRequestParser do
 
   defp parse_start_line([start_line | remaining]) do
     case String.split(start_line, " ") do
-      [method, path, version] -> {:ok, %{method: method, path: path, version: version}, remaining}
-      _ -> {:error, "Could not parse start line of request #{start_line}}"}
+      [method, path, "HTTP/" <> version] ->
+        {:ok, %{method: method, path: path, version: version}, remaining}
+
+      _ ->
+        {:error, "Could not parse start line of request #{start_line}}"}
     end
   end
 
