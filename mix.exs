@@ -1,31 +1,43 @@
-defmodule App.MixProject do
-  # NOTE: You do not need to change anything in this file.
+defmodule Elli.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :codecrafters_http_server,
-      version: "1.0.0",
-      elixir: "~> 1.18",
+      app: :elli,
+      version: "0.1.0",
+      elixir: "~> 1.14",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      escript: [main_module: CLI]
+      description: "A simple HTTP server implementation in Elixir",
+      package: package(),
+      docs: docs()
     ]
   end
 
-  # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger],
-      mod: {Server, []}
+      extra_applications: [:logger]
     ]
   end
 
-  # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      # {:dep_from_hexpm, "~> 0.3.0"},
-      # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
+      {:ex_doc, "~> 0.29", only: :dev, runtime: false}
+    ]
+  end
+
+  defp package do
+    [
+      name: "elli",
+      licenses: ["MIT"],
+      links: %{"GitHub" => "https://github.com/pangeorg/elli_http"}
+    ]
+  end
+
+  defp docs do
+    [
+      main: "Elli",
+      extras: ["Readme.md"]
     ]
   end
 end
