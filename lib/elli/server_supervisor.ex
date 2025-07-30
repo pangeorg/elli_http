@@ -15,6 +15,7 @@ defmodule Elli.ServerSupervisor do
   @impl true
   def init(opts) do
     children = [
+      {Elli.AcceptorSupervisor, []},
       # Start the server with the provided config
       {Elli.Server, opts}
     ]
