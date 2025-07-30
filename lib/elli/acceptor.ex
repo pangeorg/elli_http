@@ -25,7 +25,7 @@ defmodule Elli.Acceptor do
       {:ok, client_socket} ->
         # Handle the connection in a separate process
         Task.start(fn ->
-          Elli.Server.handle_connection(client_socket, state.handler)
+          Elli.ConnectionHandler.handle_connection(client_socket, state.handler)
         end)
 
         # Continue accepting

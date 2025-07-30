@@ -9,8 +9,6 @@ defmodule Elli.Server do
   use GenServer
   require Logger
 
-  alias Elli.Protocol.{Parser, Response, Serializer}
-
   @default_port 4000
   @default_acceptors 10
 
@@ -124,43 +122,5 @@ defmodule Elli.Server do
     for _i <- 1..state.acceptors do
       {:ok, _pid} = Elli.AcceptorSupervisor.start_acceptor(state)
     end
-  end
-
-  @doc false
-  def handle_connection(socket, handler) do
-    case receive_request(socket) do
-      {:ok, request} ->
-        try do
-          response = handler.handle_request(request)
-          send_response(socket, response)
-        rescue
-          error ->
-            Logger.error("Handler error: #{inspect(error)}")
-            error_response = Response.internal_server_error("Internal Server Error")
-            send_response(socket, error_response)
-        end
-
-      {:error, reason} ->
-        Logger.warning("Request parsing failed: #{inspect(reason)}")
-        error_response = Response.bad_request("Bad Request")
-        send_response(socket, error_response)
-    end
-
-    :gen_tcp.close(socket)
-  end
-
-  defp receive_request(socket) do
-    case :gen_tcp.recv(socket, 0, 5000) do
-      {:ok, data} ->
-        Parser.parse_request(data)
-
-      {:error, reason} ->
-        {:error, {:recv_error, reason}}
-    end
-  end
-
-  defp send_response(socket, response) do
-    serialized = Serializer.to_string(response)
-    :gen_tcp.send(socket, serialized)
   end
 end

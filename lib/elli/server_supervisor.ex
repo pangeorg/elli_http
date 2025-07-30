@@ -13,11 +13,10 @@ defmodule Elli.ServerSupervisor do
   end
 
   @impl true
-  def init(_opts) do
+  def init(opts) do
     children = [
-      # Acceptor supervisor for handling connections
-      {Elli.AcceptorSupervisor, []}
-      # Note: Server will be started dynamically via start_server/1
+      # Start the server with the provided config
+      {Elli.Server, opts}
     ]
 
     Supervisor.init(children, strategy: :one_for_one)
@@ -25,6 +24,13 @@ defmodule Elli.ServerSupervisor do
 
   @doc """
   Starts a server with the given configuration.
+  ## Example
+    # Start additional servers on different ports
+    Elli.start_server(port: 3000, handler: APIHandler)
+    Elli.start_server(port: 4000, handler: WebHandler)
+
+    # Start server manually in IEx for testing
+    iex> Elli.start_server(handler: TestHandler)
   """
   def start_server(opts) do
     # The server child spec
